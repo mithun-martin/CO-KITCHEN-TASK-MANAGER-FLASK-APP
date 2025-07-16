@@ -20,7 +20,19 @@ def convert_to_ksa(dt):
 #dont byehart or laer thus code only this to sve time ksa time that why added
 
 #to itialize sql alchemy" the followig line suse chatgpt or  documentatons neo need to byehart
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:Mithun@localhost:5432/hotel_ops'
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:Mithun@localhost:5432/hotel_ops'
+import os
+# app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL").replace("postgres://", "postgresql://", 1)
+#done above for heroku since it will not work on local machine dont byehet code
+uri = os.environ.get("DATABASE_URL","postgresql://postgres:Mithun@localhost:5432/hotel_ops")  # Heroku provides this
+if uri and uri.startswith("postgres://"):
+    uri = uri.replace("postgres://", "postgresql://", 1)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = uri
+
+
+
+
 
 #👉 This tells Flask where your database will be.
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  #dont think much here
