@@ -4,6 +4,8 @@ from flask import Flask, render_template, request, redirect
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 import pytz
+from werkzeug.exceptions import BadRequest
+
 
 app = Flask(__name__)
 #1)👉 This creates your Flask application object — it runs your web server.
@@ -45,7 +47,26 @@ db = SQLAlchemy(app)
 #In this case, you’re using SQLite as the database, and SQLAlchemy is the library that lets you interact with it via Python classes instead of raw SQL queries.
 #the line here ✅ Initializes SQLAlchemy for your Flask app.
 
-#3)initializing model class
+class Branche_issues(enum.Enum):
+    Baladia_Card = "Baladia_Card"
+    Water_Supply = "Water_Supply"
+    Air_Conditioning = "Air_Conditioning"
+    Chiller = "Chiller"
+    Freezer = "Freezer"
+    Sign_Board = "Sign_Board"
+    Robot = "Robot"
+    Uniform = "Uniform"
+    Fres_Air = "Fres_Air"
+    Exhaust = "Exhaust"
+    Pest_Control = "Pest_Control"
+    Duct_Cleaning = "Duct_Cleaning"
+    Air_Curtain = "Air_Curtain"
+    Ceiling_Lights = "Ceiling_Lights"
+    Floor_Tiles = "Floor_Tiles"
+    DeskTop_no_charge = "DeskTop_no_charge"
+
+
+
 class Branches(enum.Enum):
     Sahafa = "Sahafa"              
     Sulimania = "Sulimania"
@@ -62,16 +83,17 @@ class Branches(enum.Enum):
     Jeddah = "Jeddah"
   
 
-class ToDo(db.Model):
+class HotelOp(db.Model):
     #👉 A Python class defining your ToDo table basically MODEL LIEK IN SB
+    __tablename__ = 'hotel_op'  # 👈 This is the new table name
     sno = db.Column(db.Integer,primary_key = True) #defining the primary key
-    title = db.Column(db.String(200), nullable = False)
+    branch_issues = db.Column(db.Enum(Branche_issues), nullable = False)
     desc = db.Column(db.String(500),nullable = False)
-    comment = db.Column(db.String(200))      # ✅ New
     status = db.Column(db.String(50), nullable=False, default="None")        # ✅ New
     # date_created = db.Column(db.DateTime,default = datetime.utcnow)
     branches = db.Column(db.Enum(Branches), nullable=False)
     date_created = db.Column(db.DateTime(timezone=True), nullable=False)
+    remarks = db.Column(db.String(200))  # ✅ New
     # date_created = db.Column(db.DateTime, nullable=False) # ✅ New
 
 with app.app_context():
@@ -89,15 +111,28 @@ with app.app_context():
 @app.route("/", methods=["GET", "POST"])
 def create_read():
     if request.method == 'POST':
-        title = request.form['title']
+        #branch_issues = request.form["branch_issues"]
+       # You're assigning a string, but SQLAlchemy expects the actual Enum type Branche_issues, not a plain string
+            
+        branch_issues_str = request.form['branch_issues']
+        try:
+            branch_issues = Branche_issues(branch_issues_str)
+        except ValueError:
+            raise BadRequest("Invalid branch issue selected")
+
+
+
         desc = request.form['desc']
         status = request.form['status']
         branches = request.form['Branch']
         saudi_tz = pytz.timezone('Asia/Riyadh')
         current_time = datetime.utcnow().replace(tzinfo=pytz.utc).astimezone(saudi_tz)
+        remarks = request.form.get('remarks', '')  # Get remarks if provided, else empty string
+        #since for all others we gav emandatory to fill else form wont e netering we saw in ui
+        #as nullable = False but for remarks we did not do it so it can be empty
 
-        todo = ToDo(title=title, desc=desc, status=status, branches=branches, date_created=current_time)
-        db.session.add(todo)
+        hotelop = HotelOp(branch_issues=branch_issues, desc=desc, status=status, branches=branches, date_created=current_time, remarks=remarks)
+        db.session.add(hotelop)  # Add the new ToDo item to the session
         db.session.commit()
         return redirect("/")  # Important to redirect after POST
 
@@ -105,77 +140,46 @@ def create_read():
     filter_branch = request.args.get('filter_branch')
 
     if filter_branch and filter_branch != 'All':
-        allToDo = ToDo.query.filter_by(branches=filter_branch).all()
+        allToDo = HotelOp.query.filter_by(branches=filter_branch).all()
     else:
-        allToDo = ToDo.query.all()
+        allToDo = HotelOp.query.all()
 
-    return render_template("index.html", allToDo=allToDo, Branches=Branches, selected_branch=filter_branch)
-
-
+    return render_template("index.html", allToDo=allToDo, Branches=Branches, selected_branch=filter_branch,Branche_issues=Branche_issues)
 
 
-@app.route("/update/<int:sno>",methods=["GET","POST"])
+@app.route("/update/<int:sno>", methods=["GET", "POST"])
 def update(sno):
-    todo = ToDo.query.get_or_404(sno) #furst gets the get request chekc for no then it goes to the return render_html part
-    #which means u can chekc the a code as well of fromnend opens a new form for us to tyep new title and desc only
-    #wehen  we press update button in that /update page then the post request will be activates and if block will run and after entry it will rdirect to homepage
+    todo = HotelOp.query.get_or_404(sno)
+
     if request.method == "POST":
-        todo.title = request.form["title"]
+        branch_issues_str = request.form["branch_issues"]
+        try:
+            todo.branch_issues = Branche_issues(branch_issues_str)
+        except ValueError:
+            raise BadRequest("Invalid branch issue selected")
+
         todo.desc = request.form["desc"]
         todo.status = request.form["status"]
+        todo.remarks = request.form.get("remarks", "")
+        todo.branches = Branches(request.form["Branch"])  # ✅ This line was missing before
+
         db.session.commit()
         return redirect("/")
-    
-    return render_template("update.html", todo=todo)
 
-# 📌 Why create `update.html` separately?
+    return render_template("update.html", todo=todo, Branche_issues=Branche_issues, Branches=Branches)
 
-# Because it’s a different page.
-# When you click the Update button, it:
-
-# * opens a new page
-# * shows a form with current values filled
-# * allows you to edit and submit it
-
-# So — that page needs its own HTML template to display.
-
-# 👉 That’s why we created
-# `templates/update.html`
-
-
-
-# 📌 First: What happens when you click the Update button in your table now?
-# Current flow:
-
-# 1️⃣ You click
-# <a href="/update/{{ todo.sno }}">Update</a>
-# 👉 Browser sends a GET request to /update/3 (for example)
-# 👉 Flask runs the GET part of this:
-
-# todo = ToDo.query.get_or_404(sno)
-# return render_template("update.html", todo=todo)
-
-
-
-# 📌 Now: What happens when you submit the update form on that page?
-# 👉 That form sends a POST request to the same /update/<sno> URL
-# 👉 Flask runs this part:
-
-# 👉 Updates the data in the database
-# 👉 Then redirects back to the homepage /
-
-
-# 📌 Why redirect to / after POST?
-# Because otherwise, after updating, you’d still be sitting on the /update/<sno> page.
 
 
 
 @app.route("/delete/<int:sno>")
-def delete(sno):
-    record = ToDo.query.filter_by(sno=sno).first() #first() to delte the first record which matches
+def delete(sno):   
+    record = HotelOp.query.get(sno)
+    if record is None:
+        return "Record not found", 404
+    
     db.session.delete(record)
     db.session.commit()
-    return redirect("/") #after deleting coem to back to slash ie the sam epage home
+    return redirect("/") #after deleting come back to home page
 
 
 

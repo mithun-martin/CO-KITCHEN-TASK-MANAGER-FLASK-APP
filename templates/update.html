@@ -1,106 +1,60 @@
+<!-- templates/update.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <title>Update Task</title>
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <style>
-    body {
-      background: #121212;
-      font-family: 'Poppins', sans-serif;
-      color: #f5f5f5;
-    }
-
-    .navbar-custom {
-      background: #000;
-      padding: 0.8rem 1rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .navbar-title {
-      flex: 1;
-      text-align: center;
-      color: #ffc107;
-      font-weight: 600;
-      font-size: 1.4rem;
-    }
-
-    .navbar-title p {
-      font-size: 0.85rem;
-      color: #ddd;
-      margin: 0;
-    }
-
-    .logo img {
-      height: 45px;
-    }
-
-    .card {
-      background: #1e1e1e;
-      border: none;
-      border-radius: 15px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.4);
-      color: #f5f5f5;
-    }
-
-    .form-control {
-      background-color: #2a2a2a;
-      color: #f5f5f5;
-      border-radius: 8px;
-      border: 1px solid #444;
-    }
-
-    .form-control::placeholder {
-      color: #ddd;
-    }
-
-    .btn {
-      border-radius: 10px;
-    }
+    body { background: #121212; font-family: 'Poppins', sans-serif; color: #f1f1f1; }
+    .card { background: #1e1e1e; border-radius: 15px; padding: 2rem; margin-top: 3rem; }
+    label { color: #f1c40f; }
+    .form-control { background-color: #333; color: #fff; border-radius: 8px; border: 1px solid #555; }
+    .btn { border-radius: 10px; }
+    h2 { color: #f1c40f; }
   </style>
 </head>
 <body>
-
-  <div class="navbar-custom">
-    <div class="logo">
-      <img src="{{ url_for('static', filename='logo.png') }}" alt="logo">
-    </div>
-    <div class="navbar-title">
-      CO-KITCHEN OPERATIONS LIST
-      <p>Created by MITHUN MARTIN</p>
-    </div>
-    <div style="width:45px"></div>
-  </div>
-
-  <div class="container mt-5 mb-5">
-    <div class="card p-4">
-      <h4 class="mb-3">Edit Your Task</h4>
+  <div class="container">
+    <div class="card">
+      <h2>Update Task</h2>
       <form action="/update/{{ todo.sno }}" method="POST">
         <div class="form-group">
-          <label>Task</label>
-          <input type="text" name="title" class="form-control" value="{{ todo.title }}" required>
+          <label>Branch Issue</label>
+          <select name="branch_issues" class="form-control" required>
+            {% for issue in Branche_issues %}
+              <option value="{{ issue.value }}" {% if todo.branch_issues.value == issue.value %}selected{% endif %}>{{ issue.value }}</option>
+            {% endfor %}
+          </select>
         </div>
         <div class="form-group mt-3">
           <label>Description</label>
-          <input type="text" name="desc" class="form-control" value="{{ todo.desc }}">
+          <input type="text" name="desc" class="form-control" value="{{ todo.desc }}" required>
         </div>
         <div class="form-group mt-3">
-          <label>Marked As</label>
+          <label>Status</label>
           <select name="status" class="form-control">
-            <option value="Done" {% if todo.status == 'Done' %}selected{% endif %}>Done</option>
-            <option value="To prioritize" {% if todo.status == 'To prioritize' %}selected{% endif %}>To prioritize</option>
-            <option value="On-going" {% if todo.status == 'On-going' %}selected{% endif %}>On-going</option>
-            <option value="Daily Reminder" {% if todo.status == 'Daily Reminder' %}selected{% endif %}>Daily Reminder</option>
+            {% for status in ["Done", "To prioritize", "On-going", "Daily Reminder"] %}
+              <option value="{{ status }}" {% if todo.status == status %}selected{% endif %}>{{ status }}</option>
+            {% endfor %}
           </select>
+        </div>
+        <div class="form-group mt-3">
+          <label>Branch</label>
+          <select name="Branch" class="form-control">
+            {% for branch in Branches %}
+              <option value="{{ branch.value }}" {% if todo.branches.value == branch.value %}selected{% endif %}>{{ branch.value }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group mt-3">
+          <label>Remarks (optional)</label>
+          <input type="text" name="remarks" class="form-control" value="{{ todo.remarks or '' }}">
         </div>
         <button type="submit" class="btn btn-warning mt-4">Update Task</button>
         <a href="/" class="btn btn-secondary mt-4 ml-2">Cancel</a>
       </form>
     </div>
   </div>
-
 </body>
 </html>
