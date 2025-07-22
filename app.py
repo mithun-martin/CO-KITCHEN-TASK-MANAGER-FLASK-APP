@@ -56,7 +56,7 @@ class Branche_issues(enum.Enum):
     Sign_Board = "Sign_Board"
     Robot = "Robot"
     Uniform = "Uniform"
-    Fres_Air = "Fres_Air"
+    Fresh_Air = "Fresh_Air"
     Exhaust = "Exhaust"
     Pest_Control = "Pest_Control"
     Duct_Cleaning = "Duct_Cleaning"
@@ -64,6 +64,14 @@ class Branche_issues(enum.Enum):
     Ceiling_Lights = "Ceiling_Lights"
     Floor_Tiles = "Floor_Tiles"
     DeskTop_no_charge = "DeskTop_no_charge"
+    Salad_chiller = "Salad_chiller"
+    Electrical_and_Plumbing = "Electrical_&_Plumbing"
+    Expired_Products = "Expired_Products"
+    Oil_Status = "Oil_Status"
+    Food_Safety = "Food_Safety"
+    Personal_Hygiene = "Personal_Hygiene"
+    Dry_Stock_Room = "Dry_Stock_Room"
+    Others = "Others"  # ✅ Added this line to handle the "Others" category
 
 
 
