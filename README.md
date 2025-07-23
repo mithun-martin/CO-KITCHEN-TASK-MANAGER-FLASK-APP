@@ -2,7 +2,7 @@
 
 A web-based task tracking system built for co-kitchens or shared hospitality workspaces to log, monitor, and update operational issues across multiple branches.
 
-🚀 **Live App on Heroku**: [https://co-kitchen-task-manager-flask-app.herokuapp.com](https://co-kitchen-task-manager-flask-app.herokuapp.com)
+🚀 **Live App on Heroku**:(https://co-kitchen-task-manager-flask-app.herokuapp.com)
 
 ## ✨ Features
 
