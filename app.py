@@ -89,6 +89,8 @@ class Branches(enum.Enum):
     Qassim = "Qassim"
     Hail = "Hail"
     Jeddah = "Jeddah"
+    Qurtubah = "Qurtubah"
+
   
 
 class HotelOp(db.Model):
