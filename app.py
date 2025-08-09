@@ -1,4 +1,5 @@
 import enum
+from enum import Enum
 from flask import Flask, render_template, request, redirect
 #👉 This imports Flask (the web framework), render_template (to show HTML pages), and request (to read form data sent by user).
 from flask_sqlalchemy import SQLAlchemy
@@ -42,10 +43,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  #dont think much here
 
 #2)SETTING UP THE DATABASE  
 db = SQLAlchemy(app)
-#📌 What is SQLAlchemy here?
-#It’s the ORM (Object Relational Mapper) you’re using to connect your Python code to a database.
-#In this case, you’re using SQLite as the database, and SQLAlchemy is the library that lets you interact with it via Python classes instead of raw SQL queries.
-#the line here ✅ Initializes SQLAlchemy for your Flask app.
+
 
 class Branche_issues(enum.Enum):
     Baladia_Card = "Baladia_Card"
@@ -91,6 +89,11 @@ class Branches(enum.Enum):
     Jeddah = "Jeddah"
     Qurtubah = "Qurtubah"
 
+class Department(enum.Enum):
+    OPERATIONS = "Operations"
+    MAINTENANCE = "Maintenance"
+
+
   
 
 class HotelOp(db.Model):
@@ -102,6 +105,7 @@ class HotelOp(db.Model):
     status = db.Column(db.String(50), nullable=False, default="None")        # ✅ New
     # date_created = db.Column(db.DateTime,default = datetime.utcnow)
     branches = db.Column(db.Enum(Branches), nullable=False)
+    department = db.Column(db.Enum(Department), nullable=False)  # NEW COLUMN
     date_created = db.Column(db.DateTime(timezone=True), nullable=False)
     remarks = db.Column(db.String(200))  # ✅ New
     # date_created = db.Column(db.DateTime, nullable=False) # ✅ New
@@ -134,14 +138,16 @@ def create_read():
 
         desc = request.form['desc']
         status = request.form['status']
-        branches = request.form['Branch']
+        # branches = request.form['Branch']
+        branches = Branches(request.form['Branch'])
+        department = Department(request.form['department'])
         saudi_tz = pytz.timezone('Asia/Riyadh')
         current_time = datetime.utcnow().replace(tzinfo=pytz.utc).astimezone(saudi_tz)
         remarks = request.form.get('remarks', '')  # Get remarks if provided, else empty string
         #since for all others we gav emandatory to fill else form wont e netering we saw in ui
         #as nullable = False but for remarks we did not do it so it can be empty
 
-        hotelop = HotelOp(branch_issues=branch_issues, desc=desc, status=status, branches=branches, date_created=current_time, remarks=remarks)
+        hotelop = HotelOp(branch_issues=branch_issues, desc=desc, status=status, branches=branches,department=department, date_created=current_time, remarks=remarks)
         db.session.add(hotelop)  # Add the new ToDo item to the session
         db.session.commit()
         return redirect("/")  # Important to redirect after POST
@@ -154,7 +160,16 @@ def create_read():
     else:
         allToDo = HotelOp.query.all()
 
-    return render_template("index.html", allToDo=allToDo, Branches=Branches, selected_branch=filter_branch,Branche_issues=Branche_issues)
+    return render_template(
+    "index.html",
+    allToDo=allToDo,
+    Branches=Branches,
+    selected_branch=filter_branch,
+    Branche_issues=Branche_issues,
+    Departments=Department  # ✅ Added this line
+)
+
+
 
 
 @app.route("/update/<int:sno>", methods=["GET", "POST"])
@@ -171,13 +186,21 @@ def update(sno):
         todo.desc = request.form["desc"]
         todo.status = request.form["status"]
         todo.remarks = request.form.get("remarks", "")
-        todo.branches = Branches(request.form["Branch"])  # ✅ This line was missing before
+        todo.branches = Branches(request.form["Branch"]) # ✅ This line was missing before
+        todo.department = Department(request.form["department"])
 
         db.session.commit()
         return redirect("/")
 
-    return render_template("update.html", todo=todo, Branche_issues=Branche_issues, Branches=Branches)
+    return render_template(
+    "update.html",
+    todo=todo,
+    Branche_issues=Branche_issues,
+    Branches=Branches,
+    Departments=Department  # ✅ Consistent naming
+)
 
+   
 
 
 
@@ -197,7 +220,4 @@ if __name__ == "__main__":
     app.run(debug=True)
 
 
-   #THESE LINES TELL APP TO RUN AND IN DEBUGGER MODE SO THAT IF ANY ERRO HAPPENS IT WILLL BE SHOW IN BROWSER
-
-#📦 2️Create a .gitignore file
-#Very important — to ignore files you don’t want to push (like your DB, virtual env)
+  

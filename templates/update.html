@@ -19,6 +19,8 @@
     <div class="card">
       <h2>Update Task</h2>
       <form action="/update/{{ todo.sno }}" method="POST">
+        
+        <!-- Branch Issue -->
         <div class="form-group">
           <label>Branch Issue</label>
           <select name="branch_issues" class="form-control" required>
@@ -27,10 +29,14 @@
             {% endfor %}
           </select>
         </div>
+
+        <!-- Description -->
         <div class="form-group mt-3">
           <label>Description</label>
           <input type="text" name="desc" class="form-control" value="{{ todo.desc }}" required>
         </div>
+
+        <!-- Status -->
         <div class="form-group mt-3">
           <label>Status</label>
           <select name="status" class="form-control">
@@ -39,18 +45,33 @@
             {% endfor %}
           </select>
         </div>
+
+        <!-- Branch -->
         <div class="form-group mt-3">
           <label>Branch</label>
-          <select name="Branch" class="form-control">
+          <select name="Branch" class="form-control" required>
             {% for branch in Branches %}
               <option value="{{ branch.value }}" {% if todo.branches.value == branch.value %}selected{% endif %}>{{ branch.value }}</option>
             {% endfor %}
           </select>
         </div>
+
+        <!-- Department -->
+        <div class="form-group mt-3">
+          <label>Department</label>
+          <select name="department" class="form-control" required>
+            {% for dept in ["Operations", "Maintenance"] %}
+              <option value="{{ dept }}" {% if todo.department == dept %}selected{% endif %}>{{ dept }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- Remarks -->
         <div class="form-group mt-3">
           <label>Remarks (optional)</label>
           <input type="text" name="remarks" class="form-control" value="{{ todo.remarks or '' }}">
         </div>
+
         <button type="submit" class="btn btn-warning mt-4">Update Task</button>
         <a href="/" class="btn btn-secondary mt-4 ml-2">Cancel</a>
       </form>
@@ -58,3 +79,4 @@
   </div>
 </body>
 </html>
+

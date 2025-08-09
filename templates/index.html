@@ -70,6 +70,17 @@
           {% endfor %}
         </select>
       </div>
+
+      <!-- ✅ Department Dropdown Added -->
+      <div class="form-group mt-3">
+        <label>Department</label>
+        <select name="department" class="form-control">
+          {% for dept in Departments %}
+            <option value="{{ dept.value }}">{{ dept.value }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
       <div class="form-group mt-3">
         <label>Remarks (optional)</label>
         <input type="text" name="remarks" class="form-control" placeholder="Optional notes">
@@ -100,6 +111,7 @@
           <th>Description</th>
           <th>Status</th>
           <th>Branch</th>
+          <th>Department</th> <!-- ✅ Added Department Column -->
           <th>Time</th>
           <th>Remarks</th>
           <th>Action</th>
@@ -112,6 +124,7 @@
           <td>{{ todo.desc }}</td>
           <td><span class="badge-status {{ todo.status.replace(' ', '-') }}">{{ todo.status }}</span></td>
           <td>{{ todo.branches.value }}</td>
+          <td>{{ todo.department.value }}</td> <!-- ✅ Display Department -->
           <td>{{ todo.date_created|ksa_time }}</td>
           <td>{{ todo.remarks or '-' }}</td>
           <td>
