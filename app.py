@@ -23,16 +23,30 @@ def convert_to_ksa(dt):
 #dont byehart or laer thus code only this to sve time ksa time that why added
 
 #to itialize sql alchemy" the followig line suse chatgpt or  documentatons neo need to byehart
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:Mithun@localhost:5432/hotel_ops'
+# # app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:Mithun@localhost:5432/hotel_ops'
+# import os
+# # app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL").replace("postgres://", "postgresql://", 1)
+# #done above for heroku since it will not work on local machine dont byehet code
+# uri = os.environ.get("DATABASE_URL","postgresql://postgres:Mithun@localhost:5432/hotel_ops")  # Heroku provides this
+# if uri and uri.startswith("postgres://"):
+#     uri = uri.replace("postgres://", "postgresql://", 1)
+
+# app.config['SQLALCHEMY_DATABASE_URI'] = uri
+
+
 import os
-# app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL").replace("postgres://", "postgresql://", 1)
-#done above for heroku since it will not work on local machine dont byehet code
-uri = os.environ.get("DATABASE_URL","postgresql://postgres:Mithun@localhost:5432/hotel_ops")  # Heroku provides this
-if uri and uri.startswith("postgres://"):
+
+uri = os.getenv(
+    "DATABASE_URL",
+    "postgresql://postgres:Mithun@localhost:5432/hotel_ops"  # fallback for local dev
+)
+
+# Render/Heroku sometimes provide "postgres://" instead of "postgresql://"
+if uri.startswith("postgres://"):
     uri = uri.replace("postgres://", "postgresql://", 1)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = uri
-
+app.config["SQLALCHEMY_DATABASE_URI"] = uri
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 
 
